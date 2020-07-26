@@ -1,0 +1,38 @@
+# sbt
+# (may want to keep parts of 'project')
+bin/
+project/project/
+project/build*
+project/metals*
+target/
+build/
+
+# eclipse
+build
+.classpath
+.project
+.settings
+.worksheet
+
+# ide(s)
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+.bloop
+.metals
+.vscode
+
+# mac
+.DS_Store
+
+# other?
+.history
+.scala_dependencies
+.cache
+.cache-main
+
+#general
+*.class
+
