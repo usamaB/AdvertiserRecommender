@@ -133,10 +133,13 @@ class AdvertiserRecommender extends SparkJob {
       left: DataFrame
   ) = {
     import spark.implicits._
-
     left.join(right, $"${colLeft}" === $"${colRight}")
   }
 
+  /**
+    * Count total impressions and revenue sum for app_id,country_code and advertiser_id
+    * Calculates rate by dividing the two
+    */
   def calculateAdvertiserRate(
       spark: SparkSession
   )(df: DataFrame) = {
@@ -151,12 +154,20 @@ class AdvertiserRecommender extends SparkJob {
       .drop("impression_count", "total_revenue")
   }
 
+  /**
+    * Calculates Rank for the provided window
+    */
   def calculateRankOverWindow(window: WindowSpec)(df: DataFrame) = {
     df.withColumn("rank", dense_rank.over(window))
   }
+
   def getTopNRank(n: Int)(df: DataFrame) = {
     df.where(s"rank <= ${n}")
   }
+
+  /**
+    * groups data and makes a list of recommended_advertiser_ids from advertiser_id
+    */
   def getRecommendedIdsList()(df: DataFrame): DataFrame = {
     df.groupBy("app_id", "country_code")
       .agg(collect_list("advertiser_id").as("recommended_advertiser_ids"))
@@ -180,7 +191,6 @@ class AdvertiserRecommender extends SparkJob {
     * Reads single line json file
     * converts it to multiline json
     * and writes to a file
-    * @param path
     */
   private def convertToMultiLineJson(path: String) = {
     val source = Source.fromFile(path + ".singleline")
