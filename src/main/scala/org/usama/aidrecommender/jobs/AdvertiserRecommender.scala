@@ -1,7 +1,8 @@
 package org.usama.aidrecommender.jobs
 
-import java.io.{BufferedWriter, FileWriter}
+import java.io.{BufferedWriter, File, FileWriter}
 
+import io.circe.parser._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.usama.aidrecommender.io.{ReadConfig, Storage, WriteConfig}
 import org.usama.aidrecommender.utils.{AppParameters, MyFileUtil, SparkJob}
@@ -14,7 +15,6 @@ import scala.util.{Failure, Success}
 
 class AdvertiserRecommender extends SparkJob {
   override def appName: String = "AdvertiserRecommender"
-  val myLogger                 = Logger.getLogger(getClass)
   Logger.getRootLogger.setLevel(Level.WARN)
 
   /**
@@ -27,7 +27,6 @@ class AdvertiserRecommender extends SparkJob {
       args: AppParameters,
       storage: Storage
   ) = {
-    myLogger.setLevel(Level.DEBUG)
 
     val clicksDF =
       storage
@@ -67,11 +66,11 @@ class AdvertiserRecommender extends SparkJob {
       WriteConfig("json", "outputDir")
     )
 
-    convertToSingleFile(spark, "outputDir", args.outputPath)
-    //Spark Code is finished here.
-    //Next is just converting single line json to multi line json and writing a file
+    convertToSingleFile(spark, "outputDir", args.outputPath + ".singleline")
+//    //Spark Code is finished here.
+//    //Next is just converting single line json to multi line json and writing a file
 
-//    convertToMultiLineJson(args.outputPath)
+    convertToMultiLineJson(args.outputPath)
 
   }
 
@@ -164,7 +163,8 @@ class AdvertiserRecommender extends SparkJob {
   }
 
   /**
-    * converts Spark Writer OuputDir to a SingleFile on the Provided FileSystem(Local In this case)
+    * Hadoop FS Utility
+    * converts Spark Writer Output Dir to a SingleFile on the Provided FileSystem(Local In this case)
     * @param header is used for CSV Headers
     */
   private def convertToSingleFile(
@@ -183,19 +183,26 @@ class AdvertiserRecommender extends SparkJob {
     * @param path
     */
   private def convertToMultiLineJson(path: String) = {
-    val source    = Source.fromFile(path)
-    val writer    = new BufferedWriter(new FileWriter(path))
-    val jsonLines = source.getLines
-    val numLines  = jsonLines.size
+    val source = Source.fromFile(path + ".singleline")
+    val writer = new BufferedWriter(
+      new FileWriter(new File(path))
+    )
+    val jsonList = source.getLines.toList
+    val numLines = jsonList.size
 
     writer.append('[')
     writer.newLine()
-    jsonLines.zipWithIndex.foreach {
-      case (json, index) =>
-        writer.write(json)
-        if (index < numLines - 1)
-          writer.append(',')
-        writer.newLine()
+    for ((json, index) <- jsonList.zipWithIndex) {
+      val parsedJson = parse(json) match {
+        case Left(failure) =>
+          System.err.println(failure.getLocalizedMessage)
+          sys.exit(1)
+        case Right(json) => json.spaces2
+      }
+      writer.write(parsedJson)
+      if (index < numLines - 1)
+        writer.append(',')
+      writer.newLine()
     }
     writer.append(']')
 

@@ -1,11 +1,18 @@
 lazy val commonSettings = Seq(
   version := "0.1-SNAPSHOT",
   organization := "org.usama",
-  scalaVersion := "2.11.2",
+  scalaVersion := "2.11.12",
   test in assembly := {}
 )
 
 val decline      = "com.monovore" %% "decline" % "1.0.0"
+val circeVersion = "0.12.0-M3"
+val circeDependencies = Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
+
 val sparkVersion = "2.4.5"
 val sparkDependencies =
   Seq("org.apache.spark" %% "spark-core", "org.apache.spark" %% "spark-sql")
@@ -24,14 +31,16 @@ val dependencies = Seq(
   decline,
   scalaTest,
   sparkTestingBase
-) ++ sparkDependencies
+) ++ sparkDependencies ++ circeDependencies
 
 resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 
 lazy val assemblySettings = Seq(
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-    case x                             => MergeStrategy.first
+    case x =>
+      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      oldStrategy(x)
   }
 )
 
@@ -59,7 +68,7 @@ scalacOptions ++= Seq(
   "-language:postfixOps"
 )
 
-lazy val sparkJob = (project in file("."))
+lazy val AdvertiserRecommenderJob = (project in file("."))
   .settings(commonSettings: _*)
   .settings(assemblySettings: _*)
   .settings(libraryDependencies ++= dependencies)
