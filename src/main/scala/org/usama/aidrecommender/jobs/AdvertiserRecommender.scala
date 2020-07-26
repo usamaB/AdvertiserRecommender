@@ -15,7 +15,7 @@ import scala.util.{Failure, Success}
 
 class AdvertiserRecommender extends SparkJob {
   override def appName: String = "AdvertiserRecommender"
-  Logger.getRootLogger.setLevel(Level.WARN)
+//  Logger.getRootLogger.setLevel(Level.WARN)
 
   /**
     * Main function of a Job
