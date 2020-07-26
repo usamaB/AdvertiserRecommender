@@ -16,14 +16,14 @@ for tests
 sbt test
 ```
 
-to generate jar
+to generate jar run in sbt-shell
 ```sbtshell
 assembly
 ```
  
 to run the application
-```bash
-./spark-submit --master local[*] asbolute_path_to_AdvertiserRecommender-assembly-0.1-SNAPSHOT.jar -i impressions.json -c clicks.json
+```bash 
+./spark-submit --master local[*] --class "org.usama.aidrecommender.Main" asbolute_path_to_AdvertiserRecommender-assembly-0.1-SNAPSHOT.jar -i impressions.json -c clicks.json
 ```
 It assumes that the Spark Environment is present where the jar is being run else change spark dependencies to Compiled from Provided
 
