@@ -1,4 +1,8 @@
-# AdsRevenue Guide
+# AdvertiserRecommender Guide
+## Decision 
+Remove impressions with null or country_code set as Empty. from empty the analyst or Data Scientist can't tell which country it is. 
+If want to enable it's just a check.
+
 ## How to Run
 ### parameters 
 1) -i or --impressions-file-path absolute path of impressions.json
