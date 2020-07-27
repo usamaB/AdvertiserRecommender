@@ -50,7 +50,7 @@ class AdvertiserRecommenderTest
     joined.columns.contains("numbers") shouldBe (true)
   }
 
-  "TopN Rank" should " have count 1 in [1,12,22,4,55] as only a single value is <= 2" in {
+  "TopN Rank" should "should have count 1 as only a single value in [1,12,22,4,55] is less than 2" in {
     val n = 2
     val rankDF = spark.createDF(
       List(1, 12, 22, 4, 55),
