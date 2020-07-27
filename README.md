@@ -37,7 +37,11 @@ It assumes that the Spark Environment is present where the jar is being run else
 If you provide **-o or --output-file-path** parameter the output will be generated at that path, else it'll be generated at the same path you run the command/application.
 
 Two output files are generated one with single line, second with multi-line.
-Single-line-format: ```{"app_id":32,"country_code":"US","recommended_advertiser_ids":[4,9,5,1,3]}```
+
+Single-line-format: 
+
+```{"app_id":32,"country_code":"US","recommended_advertiser_ids":[4,9,5,1,3]}```
+
 Multi-line-format:  
 ```
 {
