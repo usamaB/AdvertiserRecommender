@@ -2,6 +2,8 @@
 ## Decision 
 Remove impressions with null or country_code set as Empty. from empty the analyst or Data Scientist can't tell which country it is. 
 If want to enable it's just a check.
+I take only the top 5 advertisers even if some have the same rate. If you want top 5 with different rates change
+[line](https://github.com/usamaB/AdvertiserRecommender/blob/master/src/main/scala/org/usama/aidrecommender/jobs/AdvertiserRecommender.scala#L162) from row_number() to dense_rank()
 
 ## How to Run
 ### parameters 
@@ -10,7 +12,7 @@ If want to enable it's just a check.
 3) -o or --output-file-path optional. the absolute path of the outputfile
 4) -n or --topN optional, default 5. the number of top advertisers you want the application to find.  
  
-to run is sbt-shell. goto project path and or can also run from sbt-shell 
+to run is sbt-shell. goto project path and or can also run from sbt-shell. Would have to change spark dependencies from provided to compiled
 ```sbtshell
 sbt run -i absolute_path_of_impressions.json -c absolute_path_of_clicks.json
 ```
