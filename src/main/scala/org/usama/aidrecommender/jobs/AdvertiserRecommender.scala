@@ -151,14 +151,16 @@ class AdvertiserRecommender extends SparkJob {
         sum($"revenue").as("total_revenue")
       )
       .withColumn("rate", $"total_revenue" / $"impression_count")
-      .drop("impression_count", "total_revenue")
   }
 
   /**
     * Calculates Rank for the provided window
     */
   def calculateRankOverWindow(window: WindowSpec)(df: DataFrame) = {
-    df.withColumn("rank", dense_rank.over(window))
+    df.withColumn(
+      "rank",
+      row_number().over(window)
+    ) //use rank() if you want to consider advertisers with same rate as a single position
   }
 
   def getTopNRank(n: Int)(df: DataFrame) = {
@@ -169,8 +171,11 @@ class AdvertiserRecommender extends SparkJob {
     * groups data and makes a list of recommended_advertiser_ids from advertiser_id
     */
   def getRecommendedIdsList()(df: DataFrame): DataFrame = {
-    df.groupBy("app_id", "country_code")
-      .agg(collect_list("advertiser_id").as("recommended_advertiser_ids"))
+    df
+      .groupBy("app_id", "country_code")
+      .agg(
+        collect_list("advertiser_id").as("recommended_advertiser_ids")
+      )
   }
 
   /**
